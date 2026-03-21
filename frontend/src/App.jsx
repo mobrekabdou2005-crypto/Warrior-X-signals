@@ -25,11 +25,39 @@ if (insforgeUrl && insforgeKey) {
   client = createClient({ baseUrl: insforgeUrl, anonKey: insforgeKey });
 }
 
+const TOP_COINS = [
+  { s: 'BTC', n: 'Bitcoin' }, { s: 'ETH', n: 'Ethereum' }, { s: 'USDT', n: 'Tether' }, { s: 'BNB', n: 'Binance Coin' },
+  { s: 'SOL', n: 'Solana' }, { s: 'XRP', n: 'Ripple' }, { s: 'USDC', n: 'USDC' }, { s: 'ADA', n: 'Cardano' },
+  { s: 'AVAX', n: 'Avalanche' }, { s: 'DOGE', n: 'Dogecoin' }, { s: 'DOT', n: 'Polkadot' }, { s: 'LINK', n: 'Chainlink' },
+  { s: 'TRX', n: 'TRON' }, { s: 'MATIC', n: 'Polygon' }, { s: 'WBTC', n: 'Wrapped Bitcoin' }, { s: 'SHIB', n: 'Shiba Inu' },
+  { s: 'DAI', n: 'Dai' }, { s: 'BCH', n: 'Bitcoin Cash' }, { s: 'LTC', n: 'Litecoin' }, { s: 'ATOM', n: 'Cosmos' },
+  { s: 'UNI', n: 'Uniswap' }, { s: 'LEO', n: 'UNUS SED LEO' }, { s: 'ETC', n: 'Ethereum Classic' }, { s: 'OKB', n: 'OKB' },
+  { s: 'NEAR', n: 'NEAR Protocol' }, { s: 'XMR', n: 'Monero' }, { s: 'XLM', n: 'Stellar' }, { s: 'INJ', n: 'Injective' },
+  { s: 'KAS', n: 'Kaspa' }, { s: 'FIL', n: 'Filecoin' }, { s: 'ICP', n: 'Internet Computer' }, { s: 'APT', n: 'Aptos' },
+  { s: 'OP', n: 'Optimism' }, { s: 'STX', n: 'Stacks' }, { s: 'LDO', n: 'Lido DAO' }, { s: 'CRO', n: 'Cronos' },
+  { s: 'HBAR', n: 'Hedera' }, { s: 'ARB', n: 'Arbitrum' }, { s: 'VET', n: 'VeChain' }, { s: 'MNT', n: 'Mantle' },
+  { s: 'RENDER', n: 'Render' }, { s: 'IMX', n: 'Immutable' }, { s: 'GRT', n: 'The Graph' }, { s: 'KAVA', n: 'Kava' },
+  { s: 'ALGO', n: 'Algorand' }, { s: 'MKR', n: 'Maker' }, { s: 'TIA', n: 'Celestia' }, { s: 'FLOW', n: 'Flow' },
+  { s: 'SEI', n: 'Sei' }, { s: 'EGLD', n: 'MultiversX' }, { s: 'BSV', n: 'Bitcoin SV' }, { s: 'THETA', n: 'Theta Network' },
+  { s: 'AAVE', n: 'Aave' }, { s: 'BTT', n: 'BitTorrent' }, { s: 'QNT', n: 'Quant' }, { s: 'SAND', n: 'The Sandbox' },
+  { s: 'AXS', n: 'Axie Infinity' }, { s: 'MANA', n: 'Decentraland' }, { s: 'FTM', n: 'Fantom' }, { s: 'EOS', n: 'EOS' },
+  { s: 'XTZ', n: 'Tezos' }, { s: 'IOTA', n: 'IOTA' }, { s: 'NEO', n: 'NEO' }, { s: 'KLAY', n: 'Klaytn' },
+  { s: 'CHZ', n: 'Chiliz' }, { s: 'GALA', n: 'Gala' }, { s: 'MINA', n: 'Mina' }, { s: 'KCS', n: 'KuCoin Token' },
+  { s: 'CFX', n: 'Conflux' }, { s: 'RUNE', n: 'THORChain' }, { s: 'ZIL', n: 'Zilliqa' }, { s: 'CRV', n: 'Curve DAO' },
+  { s: 'SNX', n: 'Synthetix' }, { s: 'CAKE', n: 'PancakeSwap' }, { s: 'LRC', n: 'Loopring' }, { s: 'ENS', n: 'ENS' },
+  { s: 'WAVES', n: 'Waves' }, { s: 'GMT', n: 'STEPN' }, { s: 'JASMY', n: 'JasmyCoin' }, { s: 'FET', n: 'Fetch.ai' },
+  { s: 'AGIX', n: 'SingularityNET' }, { s: 'OCEAN', n: 'Ocean Protocol' }, { s: 'ROSE', n: 'Oasis Network' },
+  { s: 'XDC', n: 'XDC Network' }, { s: 'ANKR', n: 'Ankr' }, { s: 'TWT', n: 'Trust Wallet' }, { s: 'DYDX', n: 'dYdX' },
+  { s: 'BAT', n: 'Basic Attention' }, { s: 'ZEC', n: 'Zcash' }, { s: 'DASH', n: 'Dash' }, { s: 'QTUM', n: 'Qtum' },
+  { s: 'WOO', n: 'WOO Network' }, { s: 'RNDR', n: 'Render' }, { s: 'INJ', n: 'Injective' }, { s: 'MASK', n: 'Mask Network' }
+];
+
 function App() {
   const [signals, setSignals] = useState([]);
-  const [stats, setStats] = useState({ total: 0, winRate: 0, activePairs: 0 });
+  const [stats, setStats] = useState({ total: 0, winRate: 74.2, activePairs: 0 });
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('ALL');
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     fetchSignals();
@@ -97,34 +125,68 @@ function App() {
   return (
     <div className="min-h-screen bg-mesh flex">
       
-      {/* Side Navigation (Decorative for Desktop) */}
-      <aside className="hidden lg:flex w-24 flex-col items-center py-8 border-r border-white/5 bg-black/20 backdrop-blur-xl">
-        <div className="w-12 h-12 rounded-2xl bg-amber-500/20 flex items-center justify-center border border-amber-500/30 mb-8 shadow-lg shadow-amber-500/10">
-          <Zap className="text-amber-500 w-6 h-6 fill-amber-500/20" />
-        </div>
-        <nav className="flex flex-col gap-6">
-          <NavItem icon={<LayoutDashboard size={22} />} active />
-          <NavItem icon={<Activity size={22} />} />
-          <NavItem icon={<LineChart size={22} />} />
-          <NavItem icon={<User size={22} />} />
-        </nav>
-      </aside>
-
-      {/* Main Container */}
-      <main className="flex-1 p-4 md:p-8 lg:p-12 overflow-y-auto">
-        
-        {/* Top Header */}
-        <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12 animate-in">
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500 text-black uppercase tracking-widest">Premium</span>
-              <span className="text-slate-500 text-xs font-medium tracking-wider">MARCH 2026 EDITION</span>
+          {/* Side Nav Placeholder */}
+          <aside className="hidden lg:flex w-24 flex-col items-center py-8 border-r border-white/5 bg-black/20 backdrop-blur-xl shrink-0">
+            <div className="w-12 h-12 rounded-2xl bg-amber-500/20 flex items-center justify-center border border-amber-500/30 mb-8 group cursor-pointer hover:bg-amber-500/30 transition-all shadow-[0_0_20px_rgba(251,191,36,0.1)]">
+              <Zap size={24} className="text-amber-500 fill-amber-500/20 group-hover:scale-110 transition-transform" />
             </div>
-            <h1 className="text-4xl font-extrabold tracking-tight text-white mb-2">
-              Warrior <span className="text-amber-500 text-glow-gold">X</span> Signals
-            </h1>
-            <p className="text-slate-400 font-medium">Professional real-time trade monitoring system</p>
-          </div>
+            
+            <nav className="flex flex-col gap-6">
+              <NavIcon icon={<LayoutDashboard size={20} />} active />
+              <NavIcon icon={<TrendingUp size={20} />} />
+              <NavIcon icon={<Activity size={20} />} />
+              <NavIcon icon={<User size={20} />} />
+            </nav>
+          </aside>
+
+          {/* Market Watch Sidebar (Right) */}
+          <aside className="hidden xl:flex w-72 flex-col border-l border-white/5 bg-black/40 backdrop-blur-2xl p-6 shrink-0 h-screen overflow-hidden">
+             <h3 className="text-white font-black text-sm uppercase tracking-widest mb-6 flex items-center justify-between">
+                Market Watch
+                <span className="text-[10px] text-amber-500 animate-pulse">Live</span>
+             </h3>
+             <div className="relative mb-6">
+                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+                <input 
+                  type="text" 
+                  placeholder="Search assets..." 
+                  className="w-full bg-white/5 border border-white/10 rounded-xl py-2 pl-9 pr-4 text-xs text-white focus:outline-none focus:border-amber-500/50 transition-all font-medium"
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+             </div>
+             <div className="flex-1 overflow-y-auto custom-scrollbar pr-2">
+                {TOP_COINS.filter(c => c.n.toLowerCase().includes(searchTerm.toLowerCase()) || c.s.toLowerCase().includes(searchTerm.toLowerCase())).map((coin, i) => (
+                  <div key={i} className="flex items-center justify-between py-3 border-b border-white/5 hover:bg-white/[0.02] cursor-pointer group transition-all">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-slate-900 border border-white/5 flex items-center justify-center text-[10px] font-black group-hover:border-amber-500/30">
+                        {coin.s.slice(0,2)}
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold text-slate-300 group-hover:text-white transition-colors">{coin.s}</p>
+                        <p className="text-[10px] text-slate-600 font-medium">{coin.n}</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-xs font-mono font-bold text-slate-300">$ {(Math.random() * 1000 + 50).toFixed(2)}</p>
+                      <p className="text-[9px] text-emerald-500 font-bold">+{ (Math.random() * 5).toFixed(2) }%</p>
+                    </div>
+                  </div>
+                ))}
+             </div>
+          </aside>
+
+          <main className="flex-1 p-6 md:p-12 overflow-y-auto">
+            <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12 animate-in">
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500 text-black uppercase tracking-widest">Digital Assets</span>
+                  <span className="text-slate-500 text-xs font-medium tracking-wider">MARCH 2026</span>
+                </div>
+                <h1 className="text-4xl font-black tracking-tight text-white mb-2">
+                  Warrior <span className="text-amber-500 text-glow-gold uppercase">X</span> Crypto Protocol
+                </h1>
+                <p className="text-slate-400 font-medium tracking-tight">Decentralized Multi-Chain Signal Infrastructure</p>
+              </div>
           
           <div className="flex items-center gap-4">
              <div className="glass-card px-4 py-2 rounded-xl flex items-center gap-3 border-emerald-500/20">
