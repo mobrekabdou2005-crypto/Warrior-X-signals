@@ -357,6 +357,22 @@ function FooterLink({ label }) {
   );
 }
 
+function ArrowUpIcon() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" className="opacity-80">
+      <line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/>
+    </svg>
+  );
+}
+
+function ArrowDownIcon() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" className="opacity-80">
+      <line x1="7" y1="7" x2="17" y2="17"/><polyline points="17 7 17 17 7 17"/>
+    </svg>
+  );
+}
+
 function StatCard({ title, value, icon, color, delay }) {
   const colors = {
     amber: 'from-amber-500/20 text-amber-500 border-amber-500/30',
@@ -387,7 +403,7 @@ function StatCard({ title, value, icon, color, delay }) {
   );
 }
 
-function NavItem({ icon, active }) {
+function NavIcon({ icon, active }) {
   return (
     <button className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300 ${active ? 'bg-amber-500 text-black shadow-lg shadow-amber-500/20' : 'text-slate-500 hover:bg-white/5 hover:text-slate-300'}`}>
       {icon}
