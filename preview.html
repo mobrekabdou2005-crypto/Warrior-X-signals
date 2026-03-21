@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Warrior X signals Live Preview</title>
+  <title>Warrior X Signals - Premium Dashboard</title>
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- React & ReactDOM -->
@@ -12,208 +12,243 @@
   <!-- Babel -->
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
   
   <style>
+    :root {
+      --clr-bg: #05070a;
+      --clr-panel: rgba(17, 25, 40, 0.75);
+      --clr-accent: #fbbf24;
+    }
     body {
-      background-color: #0b0f19;
-      color: #f8fafc;
+      background-color: var(--clr-bg);
+      color: #e2e8f0;
       font-family: 'Inter', sans-serif;
       overflow-x: hidden;
+      min-height: 100vh;
     }
-    .glass-panel {
-      background-color: rgba(30, 41, 59, 0.5);
-      backdrop-filter: blur(12px);
-      border: 1px solid rgba(51, 65, 85, 0.5);
-      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+    .glass-card {
+      background: var(--clr-panel);
+      backdrop-filter: blur(16px) saturate(180%);
+      border: 1px solid rgba(255, 255, 255, 0.08);
     }
-    .animate-fade-in {
-      animation: fadeIn 0.4s ease-out forwards;
+    .bg-mesh {
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.15) 0px, transparent 50%),
+        radial-gradient(at 100% 0%, rgba(251, 191, 36, 0.1) 0px, transparent 50%),
+        radial-gradient(at 50% 100%, rgba(139, 92, 246, 0.1) 0px, transparent 50%);
     }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
+    .text-glow-gold {
+      text-shadow: 0 0 15px rgba(251, 191, 36, 0.4);
     }
-    .icon {
-      stroke: currentColor;
-      fill: none;
-      stroke-width: 2;
-      stroke-linecap: round;
-      stroke-linejoin: round;
+    .animate-in {
+      animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(20px); filter: blur(10px); }
+      to { opacity: 1; transform: translateY(0); filter: blur(0); }
+    }
+    .shimmer {
+      position: relative;
+      overflow: hidden;
+    }
+    .shimmer::after {
+      content: "";
+      position: absolute;
+      top: 0; right: 0; bottom: 0; left: 0;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.03), transparent);
+      transform: translateX(-100%);
+      animation: shimmerLoop 3s infinite;
+    }
+    @keyframes shimmerLoop {
+      100% { transform: translateX(100%); }
     }
   </style>
-  
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            'buy-green': '#10b981',
-            'sell-red': '#ef4444',
-          }
-        }
-      }
-    }
-  </script>
 </head>
-<body>
+<body class="bg-mesh">
   <div id="root"></div>
 
   <script type="text/babel">
     const { useState, useEffect } = React;
 
-    // SVG Icons
-    const ActivityIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="icon w-6 h-6 text-white" viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>;
-    const ArrowUpRight = () => <svg xmlns="http://www.w3.org/2000/svg" className="icon w-3.5 h-3.5" viewBox="0 0 24 24"><path d="M7 17l9.2-9.2M17 17V7H7"/></svg>;
-    const ArrowDownRight = () => <svg xmlns="http://www.w3.org/2000/svg" className="icon w-3.5 h-3.5" viewBox="0 0 24 24"><path d="M7 7l9.2 9.2M17 7v10H7"/></svg>;
-    const LineChartIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="icon w-6 h-6 text-emerald-400" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>;
-    const BarChartIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="icon w-6 h-6 text-blue-400" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>;
-    const ShieldIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="icon w-6 h-6 text-purple-400" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>;
-    const ClockIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="icon w-4 h-4" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>;
+    // Icons
+    const ZapIcon = ({size=24, className=""}) => (
+      <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+    );
+    const ActivityIcon = ({size=24, className=""}) => (
+      <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+    );
+    const TrendingUpIcon = ({size=24, className=""}) => (
+      <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+    );
+    const ShieldIcon = ({size=24, className=""}) => (
+      <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+    );
+    const ArrowUpIcon = () => (
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
+    );
+    const ArrowDownIcon = () => (
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><line x1="7" y1="7" x2="17" y2="17"/><polyline points="17 7 17 17 7 17"/></svg>
+    );
 
-    function StatCard({ title, value, icon, trend }) {
+    function StatCard({ title, value, icon, color, delay }) {
+      const colors = {
+        amber: 'from-amber-500/20 text-amber-500 border-amber-500/30',
+        emerald: 'from-emerald-500/20 text-emerald-400 border-emerald-500/30',
+        blue: 'from-blue-500/20 text-blue-400 border-blue-500/30',
+        indigo: 'from-indigo-500/20 text-indigo-400 border-indigo-500/30'
+      };
       return (
-        <div className="glass-panel p-6 rounded-2xl relative overflow-hidden group hover:-translate-y-1 transition-transform duration-300">
-          <div className="flex justify-between items-start mb-4">
-            <div className="p-3 bg-slate-900/50 rounded-xl border border-slate-700/50 group-hover:bg-slate-800 transition-colors">
-              {icon}
+        <div className="glass-card p-6 rounded-3xl overflow-hidden group animate-in shimmer transition-all duration-300 hover:border-amber-500/30 hover:-translate-y-1" style={{animationDelay: `${delay}s`}}>
+          <div className="flex justify-between items-start mb-6">
+            <div className={`p-3 bg-gradient-to-br rounded-2xl border ${colors[color]}`}>{icon}</div>
+            <div className="flex h-6 items-center px-2 rounded-lg bg-white/5 border border-white/5">
+              <span className="text-[9px] font-black text-slate-500 uppercase">Live</span>
             </div>
-            <span className="text-xs font-semibold text-emerald-400 bg-emerald-400/10 px-2 py-1 rounded-full">{trend}</span>
           </div>
-          <h3 className="text-slate-400 text-sm font-medium mb-1">{title}</h3>
-          <p className="text-3xl font-bold text-white tracking-tight">{value}</p>
+          <h3 className="text-slate-500 text-xs font-bold uppercase tracking-widest mb-1">{title}</h3>
+          <div className="flex items-baseline gap-2">
+            <p className="text-3xl font-black text-white tracking-tighter">{value}</p>
+            <span className="text-xs text-emerald-500 font-bold">+1.2%</span>
+          </div>
         </div>
       );
     }
 
     function App() {
       const [signals, setSignals] = useState([]);
-      const [stats, setStats] = useState({ total: 0, winRate: 0, activePairs: 0 });
       const [loading, setLoading] = useState(true);
       const [filter, setFilter] = useState('ALL');
 
       useEffect(() => {
-        // Mock data fetch to simulate API loading
         setTimeout(() => {
           const mock = [
             { id: 1, symbol: 'XAUUSD', signal_type: 'BUY', price: 2030.45, timestamp: new Date().toISOString() },
             { id: 2, symbol: 'EURUSD', signal_type: 'SELL', price: 1.0845, timestamp: new Date(Date.now() - 3600000).toISOString() },
-            { id: 3, symbol: 'BTCUSDT', signal_type: 'BUY', price: 64200.00, timestamp: new Date(Date.now() - 7200000).toISOString() },
+            { id: 3, symbol: 'BTCUSDT', signal_type: 'BUY', price: 63420.50, timestamp: new Date(Date.now() - 7200000).toISOString() },
             { id: 4, symbol: 'GBPUSD', signal_type: 'SELL', price: 1.2530, timestamp: new Date(Date.now() - 14400000).toISOString() },
-            { id: 5, symbol: 'XAUUSD', signal_type: 'BUY', price: 2028.10, timestamp: new Date(Date.now() - 86400000).toISOString() },
-            { id: 6, symbol: 'ETHUSDT', signal_type: 'SELL', price: 3050.50, timestamp: new Date(Date.now() - 96400000).toISOString() }
+            { id: 5, symbol: 'SOLUSDT', signal_type: 'BUY', price: 145.20, timestamp: new Date(Date.now() - 17200000).toISOString() },
           ];
           setSignals(mock);
-          setStats({ total: mock.length, activePairs: new Set(mock.map(m=>m.symbol)).size, winRate: 68.5 });
           setLoading(false);
         }, 800);
       }, []);
 
-      const filteredSignals = filter === 'ALL' ? signals : signals.filter(s => s.signal_type === filter);
+      const filtered = filter === 'ALL' ? signals : signals.filter(s => s.signal_type === filter);
 
       return (
-        <div className="min-h-screen p-6 font-inter flex flex-col items-center">
-          
-          <header className="w-full max-w-6xl mb-10 flex justify-between items-center animate-fade-in">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
-                <ActivityIcon />
-              </div>
+        <div className="min-h-screen flex">
+          {/* Side Nav Placeholder */}
+          <aside className="hidden lg:flex w-24 flex-col items-center py-8 border-r border-white/5 bg-black/20 backdrop-blur-xl shrink-0">
+            <div className="w-12 h-12 rounded-2xl bg-amber-500/20 flex items-center justify-center border border-amber-500/30 mb-8">
+              <ZapIcon className="text-amber-500 fill-amber-500/20" />
+            </div>
+          </aside>
+
+          <main className="flex-1 p-6 md:p-12 overflow-y-auto">
+            <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12 animate-in">
               <div>
-                <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">
-                  Warrior X signals
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500 text-black uppercase tracking-widest">Premium</span>
+                  <span className="text-slate-500 text-xs font-medium tracking-wider">MARCH 2026</span>
+                </div>
+                <h1 className="text-4xl font-black tracking-tight text-white mb-2">
+                  Warrior <span className="text-amber-500 text-glow-gold uppercase">X</span> Signals
                 </h1>
-                <p className="text-sm text-slate-400 font-medium tracking-wide">Automated Webhook Integration</p>
+                <p className="text-slate-400 font-medium tracking-tight">Real-time TradingView Protocol Dashboard</p>
               </div>
-            </div>
-            
-            <div className="flex items-center gap-2 glass-panel px-4 py-2 rounded-full cursor-pointer hover:bg-slate-800/80 transition" onClick={() => alert('This is a local preview with Mock Data. Deploy the Backend and Frontend folders to a server to connect live databases.')}>
-              <div className="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></div>
-              <span className="text-sm font-medium text-slate-300">
-                Preview Mode (Double Click Executed)
-              </span>
-            </div>
-          </header>
-
-          <div className="w-full max-w-6xl grid grid-cols-1 md:grid-cols-3 gap-6 mb-10 animate-fade-in" style={{animationDelay: '0.1s'}}>
-            <StatCard title="Win Rate" value={`${stats.winRate}%`} icon={<LineChartIcon />} trend="+2.4%" />
-            <StatCard title="Total Signals" value={stats.total} icon={<BarChartIcon />} trend="+12 this week" />
-            <StatCard title="Active Pairs" value={stats.activePairs} icon={<ShieldIcon />} trend="Stable" />
-          </div>
-
-          <div className="w-full max-w-6xl glass-panel rounded-2xl p-6 relative overflow-hidden animate-fade-in" style={{animationDelay: '0.2s'}}>
-            <div className="absolute top-0 right-0 -m-20 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl pointer-events-none"></div>
-            <div className="absolute bottom-0 left-0 -m-20 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl pointer-events-none"></div>
-
-            <div className="flex justify-between items-end mb-6 relative z-10">
-              <div>
-                <h2 className="text-xl font-bold text-white mb-1">Recent Signals</h2>
-                <p className="text-sm text-slate-400">Live feed preview (Mock Data)</p>
+              <div className="glass-card px-4 py-2 rounded-xl border-emerald-500/20 flex items-center gap-3">
+                <div className="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></div>
+                <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">Live Stream</span>
               </div>
-              
-              <div className="flex bg-slate-900/50 p-1 rounded-lg border border-slate-700/50">
-                {['ALL', 'BUY', 'SELL'].map(f => (
-                  <button 
-                    key={f}
-                    onClick={() => setFilter(f)}
-                    className={`px-4 py-1.5 text-sm font-medium rounded-md transition-all duration-300 ${filter === f ? 'bg-slate-700 text-white shadow-md' : 'text-slate-400 hover:text-white'}`}
-                  >
-                    {f}
-                  </button>
-                ))}
-              </div>
+            </header>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-12">
+              <StatCard title="Win Rate" value="74.2%" icon={<TrendingUpIcon />} color="emerald" delay={0.1} />
+              <StatCard title="Active Flux" value="0.4s" icon={<ActivityIcon />} color="amber" delay={0.2} />
+              <StatCard title="Signals/24h" value="128" icon={<ZapIcon />} color="blue" delay={0.3} />
+              <StatCard title="Uptime" value="99.9%" icon={<ShieldIcon />} color="indigo" delay={0.4} />
             </div>
 
-            <div className="overflow-x-auto relative z-10">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="text-xs uppercase text-slate-400 border-b border-slate-700/50">
-                    <th className="pb-3 pl-4 font-semibold">Pair</th>
-                    <th className="pb-3 font-semibold">Signal</th>
-                    <th className="pb-3 font-semibold">Entry Price</th>
-                    <th className="pb-3 font-semibold">Time</th>
-                    <th className="pb-3 pr-4 text-right font-semibold">Status</th>
-                  </tr>
-                </thead>
-                <tbody className="text-sm">
-                  {loading ? (
-                    <tr><td colSpan="5" className="py-8 text-center text-slate-400">Loading signals...</td></tr>
-                  ) : filteredSignals.length === 0 ? (
-                    <tr><td colSpan="5" className="py-8 text-center text-slate-400">No signals found.</td></tr>
-                  ) : (
-                    filteredSignals.map((signal, idx) => (
-                      <tr key={signal.id || idx} className="border-b border-slate-800/50 hover:bg-slate-800/30 transition-colors animate-fade-in" style={{animationDelay: `${idx * 0.05}s`}}>
-                        <td className="py-4 pl-4 font-bold text-white flex items-center gap-2">
-                          <img src={`https://s2.coinmarketcap.com/static/img/coins/64x64/1.png`} className="w-5 h-5 rounded-full object-contain bg-slate-800"  onError={(e) => e.target.style.display='none'} alt="" />
-                          {signal.symbol}
+            <div className="glass-card rounded-[2.5rem] p-8 relative overflow-hidden animate-in" style={{animationDelay: '0.4s'}}>
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-10">
+                <h2 className="text-2xl font-black text-white">Signal Stream</h2>
+                <div className="flex bg-white/5 p-1 rounded-xl border border-white/5">
+                  {['ALL', 'BUY', 'SELL'].map(f => (
+                    <button key={f} onClick={() => setFilter(f)} className={`px-6 py-2 text-[10px] font-black rounded-lg transition-all ${filter === f ? 'bg-amber-500 text-black' : 'text-slate-500 hover:text-white'}`}>{f}</button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="w-full text-left">
+                  <thead>
+                    <tr className="text-[10px] uppercase text-slate-500 tracking-[0.2em] border-b border-white/5">
+                      <th className="pb-5 pl-4">Instrument</th>
+                      <th className="pb-5">Action</th>
+                      <th className="pb-5">Entry Point</th>
+                      <th className="pb-5 text-right pr-4">Analytics</th>
+                    </tr>
+                  </thead>
+                  <tbody className="text-[13px]">
+                    {loading ? (
+                      <tr><td colSpan="4" className="py-20 text-center animate-pulse text-slate-500 uppercase tracking-[0.3em] font-black">Decrypting Stream...</td></tr>
+                    ) : filtered.map((s, idx) => (
+                      <tr key={idx} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors group">
+                        <td className="py-5 pl-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-lg bg-slate-900 border border-white/5 flex items-center justify-center font-black text-[10px]">{s.symbol.slice(0,2)}</div>
+                            <span className="font-bold text-slate-300 group-hover:text-white transition-colors">{s.symbol}</span>
+                          </div>
                         </td>
-                        <td className="py-4">
-                          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-bold ${signal.signal_type === 'BUY' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'}`}>
-                            {signal.signal_type === 'BUY' ? <ArrowUpRight /> : <ArrowDownRight />}
-                            {signal.signal_type}
+                        <td className="py-5">
+                          <span className={`px-3 py-1 rounded-lg text-[10px] font-black border flex items-center gap-1 w-fit ${s.signal_type === 'BUY' ? 'bg-emerald-500/5 text-emerald-400 border-emerald-500/20' : 'bg-rose-500/5 text-rose-400 border-rose-500/20'}`}>
+                            {s.signal_type === 'BUY' ? <ArrowUpIcon /> : <ArrowDownIcon />} {s.signal_type}
                           </span>
                         </td>
-                        <td className="py-4 font-mono text-slate-300">${signal.price}</td>
-                        <td className="py-4 text-slate-400 flex items-center gap-2">
-                           <ClockIcon /> 
-                           {new Date(signal.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
-                        </td>
-                        <td className="py-4 pr-4 text-right">
-                          <span className="text-xs font-medium bg-blue-500/10 text-blue-400 px-2.5 py-1 rounded-full border border-blue-500/20 shadow-[0_0_10px_rgba(59,130,246,0.2)]">Active</span>
+                        <td className="py-5 font-mono font-bold text-slate-400 group-hover:text-amber-500 transition-colors">$ {s.price.toFixed(2)}</td>
+                        <td className="py-5 text-right pr-4">
+                          <span className="text-[10px] font-black text-slate-600 uppercase border border-white/5 px-2 py-1 rounded">Active</span>
                         </td>
                       </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
-          </div>
+
+            {/* Footer Section */}
+            <footer className="mt-20 py-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6 animate-in" style={{animationDelay: '0.6s'}}>
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center border border-white/10">
+                  <ZapIcon size={18} className="text-amber-500 fill-amber-500/10" />
+                </div>
+                <div>
+                  <p className="text-white font-bold text-sm tracking-tight">Warrior X <span className="text-amber-500">Signals</span></p>
+                  <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">© 2026 Professional Trading Protocol</p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-8">
+                <a href="#" className="text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-amber-500 transition-colors">Terms of Access</a>
+                <a href="#" className="text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-amber-500 transition-colors">Privacy Protocol</a>
+                <a href="#" className="text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-amber-500 transition-colors">System Status</a>
+              </div>
+
+              <div className="flex items-center gap-3">
+                 <div className="text-right">
+                   <p className="text-[10px] text-slate-500 font-bold uppercase tracking-tighter">Powered by</p>
+                   <p className="text-xs text-white font-black italic">ULTRA-LATENCY ENGINE</p>
+                 </div>
+              </div>
+            </footer>
+          </main>
         </div>
       );
     }
 
-    const root = ReactDOM.createRoot(document.getElementById('root'));
-    root.render(<App />);
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
   </script>
 </body>
 </html>
+

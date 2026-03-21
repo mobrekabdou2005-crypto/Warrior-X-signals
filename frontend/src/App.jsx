@@ -256,8 +256,42 @@ function App() {
              <p className="text-[10px] text-slate-600 font-bold uppercase tracking-[0.3em]">EndOfLine — Secure Protocol v2.4</p>
           </div>
         </div>
+
+        {/* Footer Section */}
+        <footer className="mt-20 py-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6 animate-in" style={{animationDelay: '0.6s'}}>
+          <div className="flex items-center gap-4">
+            <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center border border-white/10 group-hover:scale-110 transition-transform">
+              <Zap size={18} className="text-amber-500 fill-amber-500/10" />
+            </div>
+            <div>
+              <p className="text-white font-bold text-sm tracking-tight">Warrior X <span className="text-amber-500">Signals</span></p>
+              <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">© 2026 Professional Trading Protocol</p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-8">
+            <FooterLink label="Terms of Access" />
+            <FooterLink label="Privacy Protocol" />
+            <FooterLink label="System Status" />
+          </div>
+
+          <div className="flex items-center gap-3">
+             <div className="text-right">
+               <p className="text-[10px] text-slate-500 font-bold uppercase tracking-tighter">Powered by</p>
+               <p className="text-xs text-white font-black italic">ULTRA-LATENCY ENGINE</p>
+             </div>
+          </div>
+        </footer>
       </main>
     </div>
+  );
+}
+
+function FooterLink({ label }) {
+  return (
+    <a href="#" className="text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-amber-500 transition-colors">
+      {label}
+    </a>
   );
 }
 
